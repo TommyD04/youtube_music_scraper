@@ -91,3 +91,29 @@ def test_download_track_returns_path(mock_ydl_cls):
     result = download_track("vid1", "Artist", "Title", downloads_dir="downloads")
 
     assert result == "downloads\\Artist - Title.mp3" or result == "downloads/Artist - Title.mp3"
+
+
+@patch("scraper.ytdlp_client.yt_dlp.YoutubeDL")
+def test_download_track_with_progress_hook(mock_ydl_cls):
+    mock_ydl = MagicMock()
+    mock_ydl_cls.return_value.__enter__ = MagicMock(return_value=mock_ydl)
+    mock_ydl_cls.return_value.__exit__ = MagicMock(return_value=False)
+
+    hook = MagicMock()
+    download_track("vid1", "Artist", "Title", progress_hook=hook)
+
+    opts = mock_ydl_cls.call_args[0][0]
+    assert "progress_hooks" in opts
+    assert opts["progress_hooks"] == [hook]
+
+
+@patch("scraper.ytdlp_client.yt_dlp.YoutubeDL")
+def test_download_track_without_progress_hook(mock_ydl_cls):
+    mock_ydl = MagicMock()
+    mock_ydl_cls.return_value.__enter__ = MagicMock(return_value=mock_ydl)
+    mock_ydl_cls.return_value.__exit__ = MagicMock(return_value=False)
+
+    download_track("vid1", "Artist", "Title")
+
+    opts = mock_ydl_cls.call_args[0][0]
+    assert "progress_hooks" not in opts

@@ -1,4 +1,5 @@
 import os
+from collections.abc import Callable
 
 import yt_dlp
 
@@ -37,6 +38,7 @@ def download_track(
     title: str,
     downloads_dir: str = "downloads",
     browser: str = "chrome",
+    progress_hook: Callable | None = None,
 ) -> str:
     """Download a YouTube video as MP3. Returns the output filepath."""
     filename = sanitize_filename(artist, title)
@@ -56,6 +58,9 @@ def download_track(
             }
         ],
     }
+
+    if progress_hook is not None:
+        ydl_opts["progress_hooks"] = [progress_hook]
 
     url = f"https://www.youtube.com/watch?v={video_id}"
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:

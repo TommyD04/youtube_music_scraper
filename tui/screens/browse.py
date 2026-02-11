@@ -10,6 +10,8 @@ class BrowseScreen(Screen):
     BINDINGS = [
         ("q", "quit", "Quit"),
         ("d", "download", "Download"),
+        ("a", "select_all", "Select All"),
+        ("n", "deselect_all", "Deselect All"),
     ]
 
     CSS = """
@@ -100,6 +102,29 @@ class BrowseScreen(Screen):
         from tui.screens.download import DownloadScreen
 
         self.app.push_screen(DownloadScreen(selected_tracks, self.tracker))
+
+    def action_select_all(self) -> None:
+        if not self.tracks:
+            return
+        table = self.query_one("#tracks-table", DataTable)
+        for track in self.tracks:
+            self.selected.add(track.video_id)
+            table.update_cell(track.video_id, "✓", "[X]")
+        self._update_selection_ui()
+
+    def action_deselect_all(self) -> None:
+        if not self.tracks:
+            return
+        table = self.query_one("#tracks-table", DataTable)
+        for track in self.tracks:
+            self.selected.discard(track.video_id)
+            table.update_cell(track.video_id, "✓", "[ ]")
+        self._update_selection_ui()
+
+    def _update_selection_ui(self) -> None:
+        count = len(self.selected)
+        self.query_one("#selected-count", Label).update(f"{count} selected")
+        self.query_one("#download-btn", Button).disabled = count == 0
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "download-btn":
