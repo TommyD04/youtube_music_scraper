@@ -58,9 +58,9 @@ class DownloadScreen(Screen):
                 pct = min(downloaded * 100 / total, 100)
             else:
                 pct = 0
-            self.call_from_thread(self._update_track_progress, pct)
+            self.app.call_from_thread(self._update_track_progress, pct)
         elif d.get("status") == "finished":
-            self.call_from_thread(self._update_track_progress, 100)
+            self.app.call_from_thread(self._update_track_progress, 100)
 
     def _update_track_progress(self, pct: float) -> None:
         self.query_one("#track-progress", ProgressBar).update(progress=pct)
@@ -70,8 +70,8 @@ class DownloadScreen(Screen):
         errors: list[str] = []
 
         for i, track in enumerate(self.tracks):
-            self.call_from_thread(self._update_track_label, track.title, i, total)
-            self.call_from_thread(self._update_track_progress, 0)
+            self.app.call_from_thread(self._update_track_label, track.title, i, total)
+            self.app.call_from_thread(self._update_track_progress, 0)
 
             try:
                 download_track(

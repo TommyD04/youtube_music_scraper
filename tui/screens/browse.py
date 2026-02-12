@@ -48,6 +48,7 @@ class BrowseScreen(Screen):
         self.tracker = tracker
         self.selected: set[str] = set()
         self._track_by_row: dict = {}
+        self._check_col = None
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -68,7 +69,7 @@ class BrowseScreen(Screen):
             return
         table = self.query_one("#tracks-table", DataTable)
         table.clear(columns=True)
-        table.add_columns("✓", "Title", "Channel", "Duration")
+        self._check_col, *_ = table.add_columns("✓", "Title", "Channel", "Duration")
         self._track_by_row = {}
         for track in self.tracks:
             row_key = table.add_row(
@@ -82,10 +83,10 @@ class BrowseScreen(Screen):
 
         if video_id in self.selected:
             self.selected.discard(video_id)
-            table.update_cell(event.row_key, "✓", "[ ]")
+            table.update_cell(event.row_key, self._check_col, "[ ]")
         else:
             self.selected.add(video_id)
-            table.update_cell(event.row_key, "✓", "[X]")
+            table.update_cell(event.row_key, self._check_col, "[X]")
 
         count = len(self.selected)
         self.query_one("#selected-count", Label).update(f"{count} selected")
@@ -109,7 +110,7 @@ class BrowseScreen(Screen):
         table = self.query_one("#tracks-table", DataTable)
         for track in self.tracks:
             self.selected.add(track.video_id)
-            table.update_cell(track.video_id, "✓", "[X]")
+            table.update_cell(track.video_id, self._check_col, "[X]")
         self._update_selection_ui()
 
     def action_deselect_all(self) -> None:
@@ -118,7 +119,7 @@ class BrowseScreen(Screen):
         table = self.query_one("#tracks-table", DataTable)
         for track in self.tracks:
             self.selected.discard(track.video_id)
-            table.update_cell(track.video_id, "✓", "[ ]")
+            table.update_cell(track.video_id, self._check_col, "[ ]")
         self._update_selection_ui()
 
     def _update_selection_ui(self) -> None:

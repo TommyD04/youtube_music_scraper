@@ -4,3 +4,4 @@ __pycache__/
 downloads/
 *.mp3
 .env
+cookies.txt

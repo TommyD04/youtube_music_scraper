@@ -70,7 +70,7 @@ def test_download_track_calls_ydl_correctly(mock_ydl_cls):
     # Verify constructor was called with correct opts
     opts = mock_ydl_cls.call_args[0][0]
     assert opts["format"] == "bestaudio/best"
-    assert opts["cookiesfrombrowser"] == ("chrome",)
+    assert opts["cookiefile"] == "cookies.txt"
 
     # Verify postprocessor is FFmpegExtractAudio with mp3
     pp = opts["postprocessors"]
